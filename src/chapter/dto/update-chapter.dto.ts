@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from "class-validator";
+import { IsInt, IsOptional, IsString } from "class-validator";
 import { FileSystemStoredFile, HasMimeType, IsFile, MemoryStoredFile } from "nestjs-form-data";
 
 export class UpdateChapterDto {
@@ -11,7 +11,7 @@ export class UpdateChapterDto {
     description?: string;
 
     @IsOptional()
-    @IsString()
+    @IsInt()
     order?: number;
 
     @IsOptional()

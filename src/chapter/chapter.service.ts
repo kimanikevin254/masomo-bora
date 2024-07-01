@@ -118,23 +118,53 @@ export class ChapterService {
 
             if(!chapter) { throw new HttpException('Chapter does not exist', HttpStatus.NOT_FOUND) }
 
-            if(course.createdBy ! == userId) { throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED) }
+            if(course.createdBy !== userId) { throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED) }
 
-            return await this.prismaService.chapter.update({
-                where: { chapterId: chapter.chapterId, courseId: course.courseId },
-                data: { ...updateChapterDto },
-                select: {
-                    chapterId: true,
-                    courseId: true,
-                    title: true,
-                    description: true,
-                    videoUrl: true,
-                    order: true,
-                    published: true,
-                    createdAt: true,
-                    updatedAt: true,
-                }
-            })
+            if(updateChapterDto.video) {
+                const { asset_id, public_id, secure_url } = await this.cloudinaryService.uploadVideo(updateChapterDto.video.path)
+
+                // Remove video key
+                const { video, ...rest } = updateChapterDto
+
+                return await this.prismaService.chapter.update({
+                    where: { chapterId: chapter.chapterId, courseId: course.courseId },
+                    data: { 
+                        ...rest,
+                        cloudinaryAssetId: asset_id,
+                        cloudinaryPublicId: public_id,
+                        videoUrl: secure_url
+                    },
+                    select: {
+                        chapterId: true,
+                        courseId: true,
+                        title: true,
+                        description: true,
+                        videoUrl: true,
+                        order: true,
+                        published: true,
+                        createdAt: true,
+                        updatedAt: true,
+                    }
+                })
+            } else {
+                return await this.prismaService.chapter.update({
+                    where: { chapterId: chapter.chapterId, courseId: course.courseId },
+                    data: { 
+                        ...updateChapterDto
+                     },
+                    select: {
+                        chapterId: true,
+                        courseId: true,
+                        title: true,
+                        description: true,
+                        videoUrl: true,
+                        order: true,
+                        published: true,
+                        createdAt: true,
+                        updatedAt: true,
+                    }
+                })
+            }
         } catch (error) {
             throw new HttpException(error.message || 'Something went wrong', error.status || HttpStatus.INTERNAL_SERVER_ERROR)
         }

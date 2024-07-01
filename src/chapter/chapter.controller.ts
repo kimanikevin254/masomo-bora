@@ -38,6 +38,11 @@ export class ChapterController {
 
     @Put(':chapterId')
     @HttpCode(200)
+    @FormDataRequest({ 
+        storage: FileSystemStoredFile,
+        fileSystemStoragePath: 'uploads',
+        cleanupAfterSuccessHandle: false, 
+    })
     async updateOne(@Param('courseId') courseId: string, @Param('chapterId') chapterId: string, @Req() req: any, @Body() updateChapterDto: UpdateChapterDto): Promise<ChapterInterface>{
         return this.chapterService.updateOne(courseId, chapterId, req.user.sub, updateChapterDto)
     }
