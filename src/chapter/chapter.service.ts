@@ -59,7 +59,7 @@ export class ChapterService {
                     title,
                     description,
                     videoUrl: secure_url,
-                    order: Number(order),
+                    order,
                     cloudinaryAssetId: asset_id,
                     cloudinaryPublicId: public_id
                 },
