@@ -1,11 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { CloudinaryService } from 'src/cloudinary.service';
+import { CourseService } from 'src/course/course.service';
 import { PrismaService } from 'src/prisma.service';
 import { CreateChapterDto } from './dto/create-chapter.dto';
-import { CourseService } from 'src/course/course.service';
-import { Chapter } from '@prisma/client';
-import { CloudinaryService } from 'src/cloudinary.service';
-import { ChapterInterface } from './interfaces/chapter.interface';
 import { UpdateChapterDto } from './dto/update-chapter.dto';
+import { ChapterInterface } from './interfaces/chapter.interface';
 
 @Injectable()
 export class ChapterService {
@@ -15,12 +14,39 @@ export class ChapterService {
         private cloudinaryService: CloudinaryService,
     ){}
 
-    async create(id: string, createChapterDto: CreateChapterDto, userId: string): Promise<ChapterInterface>{
-        try {
-            const course = await this.courseService.findOne(id)
+    private readonly chapterSelect = {
+        chapterId: true,
+        courseId: true,
+        title: true,
+        description: true,
+        videoUrl: true,
+        order: true,
+        published: true,
+        createdAt: true,
+        updatedAt: true,
+    };
 
-            // Confirm that user owns the course
-            if(course.createdBy !== userId) { throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED) }
+    private async findChapterAndCheckOwnerShip(courseId: string, chapterId: string, userId: string) {
+        const course = await this.courseService.findOne(courseId)
+        if(!course) { throw new HttpException('Course does not exist', HttpStatus.NOT_FOUND) }
+
+        if(course.createdBy !== userId) { throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED) }
+
+        if(chapterId !== '') {
+            const chapter = await this.prismaService.chapter.findUnique({
+                where: { chapterId },
+                select: this.chapterSelect,
+            });
+        
+            if (!chapter) { throw new HttpException('Chapter does not exist', HttpStatus.NOT_FOUND) }
+        
+            return { course, chapter }
+        } else return { course }
+    }
+
+    async create(courseId: string, createChapterDto: CreateChapterDto, userId: string): Promise<ChapterInterface>{
+        try {
+            const { course } = await this.findChapterAndCheckOwnerShip(courseId, '', userId)
 
             const { title, description, order, video } = createChapterDto
 
@@ -37,17 +63,7 @@ export class ChapterService {
                     cloudinaryAssetId: asset_id,
                     cloudinaryPublicId: public_id
                 },
-                select: {
-                    chapterId: true,
-                    courseId: true,
-                    title: true,
-                    description: true,
-                    videoUrl: true,
-                    order: true,
-                    published: true,
-                    createdAt: true,
-                    updatedAt: true
-                }
+                select: this.chapterSelect
             })
         } catch (error) {
             console.log(error);
@@ -62,17 +78,7 @@ export class ChapterService {
             return await this.prismaService.chapter.findMany({
                 where: { courseId: course.courseId },
                 orderBy: { order: 'asc' },
-                select: {
-                    chapterId: true,
-                    courseId: true,
-                    title: true,
-                    description: true,
-                    videoUrl: true,
-                    order: true,
-                    published: true,
-                    createdAt: true,
-                    updatedAt: true,
-                }
+                select: this.chapterSelect
             })
         } catch (error) {
             throw new HttpException(error.message || 'Something went wrong', error.status || HttpStatus.INTERNAL_SERVER_ERROR)
@@ -85,17 +91,7 @@ export class ChapterService {
 
             const chapter = await this.prismaService.chapter.findUnique({
                 where: { courseId: course.courseId, chapterId },
-                select: {
-                    chapterId: true,
-                    courseId: true,
-                    title: true,
-                    description: true,
-                    videoUrl: true,
-                    order: true,
-                    published: true,
-                    createdAt: true,
-                    updatedAt: true,
-                }
+                select: this.chapterSelect
             })
 
             if(!chapter) { throw new HttpException('Chapter does not exist', HttpStatus.NOT_FOUND) }
@@ -108,63 +104,24 @@ export class ChapterService {
 
     async updateOne(courseId: string, chapterId: string, userId: string, updateChapterDto: UpdateChapterDto): Promise<ChapterInterface> {
         try {
-            const course = await this.courseService.findOne(courseId)
+            const { chapter } = await this.findChapterAndCheckOwnerShip(courseId, chapterId, userId)
 
-            if(!course) { throw new HttpException('Course does not exist', HttpStatus.NOT_FOUND) }
+            const data: any = { ...updateChapterDto }
 
-            const chapter = await this.prismaService.chapter.findUnique({
-                where: { courseId, chapterId }
-            })
-
-            if(!chapter) { throw new HttpException('Chapter does not exist', HttpStatus.NOT_FOUND) }
-
-            if(course.createdBy !== userId) { throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED) }
-
-            if(updateChapterDto.video) {
+            if(updateChapterDto.video){
                 const { asset_id, public_id, secure_url } = await this.cloudinaryService.uploadVideo(updateChapterDto.video.path)
-
-                // Remove video key
-                const { video, ...rest } = updateChapterDto
-
-                return await this.prismaService.chapter.update({
-                    where: { chapterId: chapter.chapterId, courseId: course.courseId },
-                    data: { 
-                        ...rest,
-                        cloudinaryAssetId: asset_id,
-                        cloudinaryPublicId: public_id,
-                        videoUrl: secure_url
-                    },
-                    select: {
-                        chapterId: true,
-                        courseId: true,
-                        title: true,
-                        description: true,
-                        videoUrl: true,
-                        order: true,
-                        published: true,
-                        createdAt: true,
-                        updatedAt: true,
-                    }
-                })
-            } else {
-                return await this.prismaService.chapter.update({
-                    where: { chapterId: chapter.chapterId, courseId: course.courseId },
-                    data: { 
-                        ...updateChapterDto
-                     },
-                    select: {
-                        chapterId: true,
-                        courseId: true,
-                        title: true,
-                        description: true,
-                        videoUrl: true,
-                        order: true,
-                        published: true,
-                        createdAt: true,
-                        updatedAt: true,
-                    }
-                })
+                data.cloudinaryAssetId = asset_id,
+                data.cloudinaryPublicId =  public_id,
+                data.videoUrl = secure_url
+                
+                delete data.video
             }
+
+            return await this.prismaService.chapter.update({
+                where: { chapterId: chapter.chapterId },
+                data,
+                select: this.chapterSelect
+            })
         } catch (error) {
             throw new HttpException(error.message || 'Something went wrong', error.status || HttpStatus.INTERNAL_SERVER_ERROR)
         }
@@ -172,32 +129,12 @@ export class ChapterService {
 
     async togglePublishedStatus(courseId: string, chapterId: string, userId: string): Promise<ChapterInterface> {
         try {
-            const course = await this.courseService.findOne(courseId)
-
-            if(!course) { throw new HttpException('Course does not exist', HttpStatus.NOT_FOUND) }
-
-            const chapter = await this.prismaService.chapter.findUnique({
-                where: { courseId, chapterId }
-            })
-
-            if(!chapter) { throw new HttpException('Chapter does not exist', HttpStatus.NOT_FOUND) }
-
-            if(course.createdBy !== userId) { throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED) }
+            const { chapter } = await this.findChapterAndCheckOwnerShip(courseId, chapterId, userId)
 
             return await this.prismaService.chapter.update({
-                where: { chapterId: chapter.chapterId, courseId: course.courseId },
+                where: { chapterId: chapter.chapterId },
                 data: { published: !chapter.published },
-                select: {
-                    chapterId: true,
-                    courseId: true,
-                    title: true,
-                    description: true,
-                    videoUrl: true,
-                    order: true,
-                    published: true,
-                    createdAt: true,
-                    updatedAt: true,
-                }
+                select: this.chapterSelect
             })
         } catch (error) {
             throw new HttpException(error.message || 'Something went wrong', error.status || HttpStatus.INTERNAL_SERVER_ERROR)
