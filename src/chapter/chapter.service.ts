@@ -59,7 +59,17 @@ export class ChapterService {
             
             return await this.prismaService.chapter.findMany({
                 where: { courseId: course.courseId },
-                orderBy: { order: 'asc' }
+                orderBy: { order: 'asc' },
+                select: {
+                    chapterId: true,
+                    courseId: true,
+                    title: true,
+                    description: true,
+                    videoUrl: true,
+                    order: true,
+                    createdAt: true,
+                    updatedAt: true,
+                }
             })
         } catch (error) {
             throw new HttpException(error.message || 'Something went wrong', error.status || HttpStatus.INTERNAL_SERVER_ERROR)
