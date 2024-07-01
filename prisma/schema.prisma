@@ -57,4 +57,20 @@ model Course {
   createdBy       String
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
+
+  chapters Chapter[]
+}
+
+model Chapter {
+  chapterId          String   @id @unique @default(uuid())
+  course             Course   @relation(fields: [courseId], references: [courseId])
+  courseId           String
+  title              String
+  description        String
+  videoUrl           String
+  cloudinaryAssetId  String
+  cloudinaryPublicId String
+  order              Int
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
