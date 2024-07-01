@@ -182,7 +182,7 @@ export class ChapterService {
 
             if(!chapter) { throw new HttpException('Chapter does not exist', HttpStatus.NOT_FOUND) }
 
-            if(course.createdBy ! == userId) { throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED) }
+            if(course.createdBy !== userId) { throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED) }
 
             return await this.prismaService.chapter.update({
                 where: { chapterId: chapter.chapterId, courseId: course.courseId },
