@@ -1,4 +1,4 @@
-# StudyNest
+# MasomoBora
 
 A full stack e-learning platform.
 
