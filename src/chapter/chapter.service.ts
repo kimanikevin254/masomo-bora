@@ -75,4 +75,30 @@ export class ChapterService {
             throw new HttpException(error.message || 'Something went wrong', error.status || HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
+
+    async findOne(courseId: string, chapterId: string): Promise<ChapterInterface> {
+        try {
+            const course = await this.courseService.findOne(courseId)
+
+            const chapter = await this.prismaService.chapter.findUnique({
+                where: { courseId: course.courseId, chapterId },
+                select: {
+                    chapterId: true,
+                    courseId: true,
+                    title: true,
+                    description: true,
+                    videoUrl: true,
+                    order: true,
+                    createdAt: true,
+                    updatedAt: true,
+                }
+            })
+
+            if(!chapter) { throw new HttpException('Chapter does not exist', HttpStatus.NOT_FOUND) }
+
+            return chapter
+        } catch (error) {
+            throw new HttpException(error.message || 'Something went wrong', error.status || HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+    }
 }
