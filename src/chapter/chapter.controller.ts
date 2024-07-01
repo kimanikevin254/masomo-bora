@@ -24,12 +24,6 @@ export class ChapterController {
         return this.chapterService.create(courseId, createChapterDto, req.user.sub)
     }
 
-    @Get()
-    @HttpCode(200)
-    async findAll(@Param('courseId') courseId: string): Promise<ChapterInterface[]> {
-        return this.chapterService.findAll(courseId)
-    }
-
     @Get(':chapterId')
     @HttpCode(200)
     async findOne(@Param('courseId') courseId: string, @Param('chapterId') chapterId: string): Promise<ChapterInterface> {

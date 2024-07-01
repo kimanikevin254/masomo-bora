@@ -71,20 +71,6 @@ export class ChapterService {
         }
     }
 
-    async findAll(id: string): Promise<ChapterInterface[]> {
-        try {
-            const course = await this.courseService.findOne(id)
-            
-            return await this.prismaService.chapter.findMany({
-                where: { courseId: course.courseId },
-                orderBy: { order: 'asc' },
-                select: this.chapterSelect
-            })
-        } catch (error) {
-            throw new HttpException(error.message || 'Something went wrong', error.status || HttpStatus.INTERNAL_SERVER_ERROR)
-        }
-    }
-
     async findOne(courseId: string, chapterId: string): Promise<ChapterInterface> {
         try {
             const course = await this.courseService.findOne(courseId)
