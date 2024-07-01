@@ -5,6 +5,7 @@ export interface ChapterInterface {
     description: string;
     videoUrl: string;
     order: number;
+    published: boolean;
     createdAt: Date;
     updatedAt: Date;
 }

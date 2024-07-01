@@ -71,6 +71,7 @@ model Chapter {
   cloudinaryAssetId  String
   cloudinaryPublicId String
   order              Int
+  published          Boolean  @default(false)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 }

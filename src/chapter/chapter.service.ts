@@ -5,6 +5,7 @@ import { CourseService } from 'src/course/course.service';
 import { Chapter } from '@prisma/client';
 import { CloudinaryService } from 'src/cloudinary.service';
 import { ChapterInterface } from './interfaces/chapter.interface';
+import { UpdateChapterDto } from './dto/update-chapter.dto';
 
 @Injectable()
 export class ChapterService {
@@ -43,6 +44,7 @@ export class ChapterService {
                     description: true,
                     videoUrl: true,
                     order: true,
+                    published: true,
                     createdAt: true,
                     updatedAt: true
                 }
@@ -67,6 +69,7 @@ export class ChapterService {
                     description: true,
                     videoUrl: true,
                     order: true,
+                    published: true,
                     createdAt: true,
                     updatedAt: true,
                 }
@@ -89,6 +92,7 @@ export class ChapterService {
                     description: true,
                     videoUrl: true,
                     order: true,
+                    published: true,
                     createdAt: true,
                     updatedAt: true,
                 }
@@ -97,6 +101,40 @@ export class ChapterService {
             if(!chapter) { throw new HttpException('Chapter does not exist', HttpStatus.NOT_FOUND) }
 
             return chapter
+        } catch (error) {
+            throw new HttpException(error.message || 'Something went wrong', error.status || HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+    }
+
+    async updateOne(courseId: string, chapterId: string, userId: string, updateChapterDto: UpdateChapterDto): Promise<ChapterInterface> {
+        try {
+            const course = await this.courseService.findOne(courseId)
+
+            if(!course) { throw new HttpException('Course does not exist', HttpStatus.NOT_FOUND) }
+
+            const chapter = await this.prismaService.chapter.findUnique({
+                where: { courseId, chapterId }
+            })
+
+            if(!chapter) { throw new HttpException('Chapter does not exist', HttpStatus.NOT_FOUND) }
+
+            if(course.createdBy ! == userId) { throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED) }
+
+            return await this.prismaService.chapter.update({
+                where: { chapterId: chapter.chapterId, courseId: course.courseId },
+                data: { ...updateChapterDto },
+                select: {
+                    chapterId: true,
+                    courseId: true,
+                    title: true,
+                    description: true,
+                    videoUrl: true,
+                    order: true,
+                    published: true,
+                    createdAt: true,
+                    updatedAt: true,
+                }
+            })
         } catch (error) {
             throw new HttpException(error.message || 'Something went wrong', error.status || HttpStatus.INTERNAL_SERVER_ERROR)
         }

@@ -1,9 +1,10 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Put, Req, Request, UseGuards } from '@nestjs/common';
 import { FileSystemStoredFile, FormDataRequest } from 'nestjs-form-data';
 import { CreateChapterDto } from './dto/create-chapter.dto';
 import { ChapterService } from './chapter.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ChapterInterface } from './interfaces/chapter.interface';
+import { UpdateChapterDto } from './dto/update-chapter.dto';
 
 @Controller('course/:courseId/chapter')
 @UseGuards(AuthGuard)
@@ -33,6 +34,12 @@ export class ChapterController {
     @HttpCode(200)
     async findOne(@Param('courseId') courseId: string, @Param('chapterId') chapterId: string): Promise<ChapterInterface> {
         return this.chapterService.findOne(courseId, chapterId)
+    }
+
+    @Put(':chapterId')
+    @HttpCode(200)
+    async updateOne(@Param('courseId') courseId: string, @Param('chapterId') chapterId: string, @Req() req: any, @Body() updateChapterDto: UpdateChapterDto): Promise<ChapterInterface>{
+        return this.chapterService.updateOne(courseId, chapterId, req.user.sub, updateChapterDto)
     }
 
 }

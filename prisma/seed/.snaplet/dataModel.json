@@ -109,6 +109,19 @@
           "isId": false
         },
         {
+          "id": "Chapter.published",
+          "name": "published",
+          "columnName": "published",
+          "type": "boolean",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": false
+        },
+        {
           "id": "Chapter.createdAt",
           "name": "createdAt",
           "columnName": "createdAt",
