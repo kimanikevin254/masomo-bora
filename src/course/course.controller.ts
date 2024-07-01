@@ -4,6 +4,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { CourseService } from './course.service';
 import { Course, CourseCategory } from '@prisma/client';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { CourseDetailsInterface } from './interface/course-details.interface';
 
 @Controller('course')
 export class CourseController {
@@ -34,7 +35,7 @@ export class CourseController {
     // Get course details
     @Get(':id')
     @HttpCode(200)
-    async findOne(@Param('id') id: string ): Promise<Course>  {
+    async findOne(@Param('id') id: string ): Promise<CourseDetailsInterface>  {
         return await this.courseService.findOne(id)
     }
     

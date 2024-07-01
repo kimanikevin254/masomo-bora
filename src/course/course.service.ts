@@ -4,6 +4,7 @@ import { CreateCourseDto } from './dto/create-course.dto';
 import { Course, CourseCategory } from '@prisma/client';
 import { UserService } from 'src/user/user.service';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { CourseDetailsInterface } from './interface/course-details.interface';
 
 @Injectable()
 export class CourseService {
@@ -46,16 +47,48 @@ export class CourseService {
         return await this.prismaService.courseCategory.findMany({})
     }
 
-    async findOne(id: string): Promise<Course> {
+    async findOne(id: string): Promise<CourseDetailsInterface> {
         // Retrieve course
         const course = await this.prismaService.course.findUnique({
             where: { courseId: id },
-            include: { category: true }
+            include: { 
+                category: true, 
+                courseCreatedBy: true,
+                chapters: {
+                    select: {
+                        chapterId: true,
+                        courseId: true,
+                        title: true,
+                        description: true,
+                        videoUrl: true,
+                        order: true,
+                        published: true,
+                        createdAt: true,
+                        updatedAt: true
+                    },
+                    orderBy: {
+                        order: 'asc'
+                    }
+                }, 
+            }
         })
 
         if(!course) { throw new HttpException('Course not found', HttpStatus.NOT_FOUND) }
 
-        return course
+        return {
+            courseId: course.courseId,
+            title: course.title,
+            description: course.description,
+            category: course.category,
+            createdBy: {
+                userId: course.courseCreatedBy.userId,
+                name: course.courseCreatedBy.name,
+                email: course.courseCreatedBy.email
+            },
+            chapters: course.chapters,
+            createdAt: course.createdAt,
+            updateAt: course.updatedAt
+        }
     }
 
     async findCourseByCategory(id: string): Promise<CourseCategory> {
