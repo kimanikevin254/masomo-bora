@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId        String         @id @unique @default(uuid())
+  name          String
+  email         String         @unique
+  password      String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  // userRole      UserRole       @relation(fields: [role], references: [userRoleId])
+  // role          String
+  refreshTokens RefreshToken[]
+  courses       Course[]
+}
+
+model RefreshToken {
+  tokenId      String   @id @unique @default(uuid())
+  user         User     @relation(fields: [userId], references: [userId])
+  userId       String
+  refreshToken String   @unique()
+  isValid      Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// model UserRole {
+//   userRoleId String @id @unique
+//   user       User[]
+// }
+
+model CourseCategory {
+  categoryId String   @id @unique @default(uuid())
+  category   String
+  courses    Course[]
+}
+
+model Course {
+  courseId        String         @id @unique @default(uuid())
+  title           String
+  description     String
+  category        CourseCategory @relation(fields: [categoryId], references: [categoryId])
+  categoryId      String
+  courseCreatedBy User           @relation(fields: [createdBy], references: [userId])
+  createdBy       String
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
