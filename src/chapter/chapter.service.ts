@@ -139,4 +139,38 @@ export class ChapterService {
             throw new HttpException(error.message || 'Something went wrong', error.status || HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
+
+    async togglePublishedStatus(courseId: string, chapterId: string, userId: string): Promise<ChapterInterface> {
+        try {
+            const course = await this.courseService.findOne(courseId)
+
+            if(!course) { throw new HttpException('Course does not exist', HttpStatus.NOT_FOUND) }
+
+            const chapter = await this.prismaService.chapter.findUnique({
+                where: { courseId, chapterId }
+            })
+
+            if(!chapter) { throw new HttpException('Chapter does not exist', HttpStatus.NOT_FOUND) }
+
+            if(course.createdBy ! == userId) { throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED) }
+
+            return await this.prismaService.chapter.update({
+                where: { chapterId: chapter.chapterId, courseId: course.courseId },
+                data: { published: !chapter.published },
+                select: {
+                    chapterId: true,
+                    courseId: true,
+                    title: true,
+                    description: true,
+                    videoUrl: true,
+                    order: true,
+                    published: true,
+                    createdAt: true,
+                    updatedAt: true,
+                }
+            })
+        } catch (error) {
+            throw new HttpException(error.message || 'Something went wrong', error.status || HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+    }
 }

@@ -42,4 +42,9 @@ export class ChapterController {
         return this.chapterService.updateOne(courseId, chapterId, req.user.sub, updateChapterDto)
     }
 
+    @Put(':chpaterId/toggle')
+    @HttpCode(200)
+    async togglePublishedStatus(@Param('courseId') courseId: string, @Param('chapterId') chapterId: string, @Req() req: any): Promise<ChapterInterface> {
+        return this.chapterService.togglePublishedStatus(courseId, chapterId, req.user.sub)
+    }
 }
