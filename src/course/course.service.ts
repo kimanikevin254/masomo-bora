@@ -29,7 +29,7 @@ export class CourseService {
             return await this.prismaService.course.create({
                 data: {
                     ...createCourseDto,
-                    createdBy: user.userId
+                    authorId: user.userId
                 }
             })
         } catch (error) {
@@ -53,7 +53,7 @@ export class CourseService {
             where: { courseId: id },
             include: { 
                 category: true, 
-                courseCreatedBy: true,
+                author: true,
                 chapters: {
                     select: {
                         chapterId: true,
@@ -80,14 +80,14 @@ export class CourseService {
             title: course.title,
             description: course.description,
             category: course.category,
-            createdBy: {
-                userId: course.courseCreatedBy.userId,
-                name: course.courseCreatedBy.name,
-                email: course.courseCreatedBy.email
+            author: {
+                userId: course.author.userId,
+                name: course.author.name,
+                email: course.author.email
             },
             chapters: course.chapters,
             createdAt: course.createdAt,
-            updateAt: course.updatedAt
+            updatedAt: course.updatedAt
         }
     }
 

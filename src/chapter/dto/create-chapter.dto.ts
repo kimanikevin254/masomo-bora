@@ -1,4 +1,4 @@
-import { IsInt, IsString } from "class-validator";
+import { IsInt, IsNumber, IsString } from "class-validator";
 import { FileSystemStoredFile, HasMimeType, IsFile, MemoryStoredFile } from "nestjs-form-data";
 
 export class CreateChapterDto {
@@ -8,7 +8,7 @@ export class CreateChapterDto {
     @IsString()
     description: string;
 
-    @IsInt()
+    @IsString()
     order: number;
 
     @IsFile()

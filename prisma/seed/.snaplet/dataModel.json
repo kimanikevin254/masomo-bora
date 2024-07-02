@@ -238,9 +238,9 @@
           "isId": false
         },
         {
-          "id": "Course.createdBy",
-          "name": "createdBy",
-          "columnName": "createdBy",
+          "id": "Course.authorId",
+          "name": "authorId",
+          "columnName": "authorId",
           "type": "text",
           "isRequired": true,
           "kind": "scalar",
@@ -283,7 +283,7 @@
           "kind": "object",
           "relationName": "CourseToUser",
           "relationFromFields": [
-            "createdBy"
+            "authorId"
           ],
           "relationToFields": [
             "userId"
@@ -318,6 +318,20 @@
           "isRequired": false,
           "kind": "object",
           "relationName": "ChapterToCourse",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "Enrollment",
+          "type": "Enrollment",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "EnrollmentToCourse",
           "relationFromFields": [],
           "relationToFields": [],
           "isList": true,
@@ -398,6 +412,127 @@
           "name": "CourseCategory_pkey",
           "fields": [
             "categoryId"
+          ]
+        }
+      ]
+    },
+    "Enrollment": {
+      "id": "Enrollment",
+      "tableName": "Enrollment",
+      "fields": [
+        {
+          "id": "Enrollment.enrollmentId",
+          "name": "enrollmentId",
+          "columnName": "enrollmentId",
+          "type": "text",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": true
+        },
+        {
+          "id": "Enrollment.userId",
+          "name": "userId",
+          "columnName": "userId",
+          "type": "text",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false
+        },
+        {
+          "id": "Enrollment.courseId",
+          "name": "courseId",
+          "columnName": "courseId",
+          "type": "text",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false
+        },
+        {
+          "id": "Enrollment.active",
+          "name": "active",
+          "columnName": "active",
+          "type": "boolean",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": false
+        },
+        {
+          "id": "Enrollment.enrollmentDate",
+          "name": "enrollmentDate",
+          "columnName": "enrollmentDate",
+          "type": "datetime",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": true,
+          "isId": false
+        },
+        {
+          "name": "Course",
+          "type": "Course",
+          "isRequired": true,
+          "kind": "object",
+          "relationName": "EnrollmentToCourse",
+          "relationFromFields": [
+            "courseId"
+          ],
+          "relationToFields": [
+            "courseId"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "User",
+          "type": "User",
+          "isRequired": true,
+          "kind": "object",
+          "relationName": "EnrollmentToUser",
+          "relationFromFields": [
+            "userId"
+          ],
+          "relationToFields": [
+            "userId"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        }
+      ],
+      "uniqueConstraints": [
+        {
+          "name": "Enrollment_enrollmentId_key",
+          "fields": [
+            "enrollmentId"
+          ]
+        },
+        {
+          "name": "Enrollment_pkey",
+          "fields": [
+            "enrollmentId"
           ]
         }
       ]
@@ -612,6 +747,20 @@
           "isRequired": false,
           "kind": "object",
           "relationName": "CourseToUser",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
+          "name": "Enrollment",
+          "type": "Enrollment",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "EnrollmentToUser",
           "relationFromFields": [],
           "relationToFields": [],
           "isList": true,

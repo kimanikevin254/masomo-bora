@@ -30,7 +30,7 @@ export class ChapterService {
         const course = await this.courseService.findOne(courseId)
         if(!course) { throw new HttpException('Course does not exist', HttpStatus.NOT_FOUND) }
 
-        if(course.createdBy.userId !== userId) { throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED) }
+        if(course.author.userId !== userId) { throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED) }
 
         if(chapterId !== '') {
             const chapter = await this.prismaService.chapter.findUnique({
@@ -59,7 +59,7 @@ export class ChapterService {
                     title,
                     description,
                     videoUrl: secure_url,
-                    order,
+                    order: Number(order),
                     cloudinaryAssetId: asset_id,
                     cloudinaryPublicId: public_id
                 },

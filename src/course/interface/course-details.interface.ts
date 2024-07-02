@@ -16,8 +16,8 @@ export interface CourseDetailsInterface {
     title: string;
     description: string;
     category: CourseCategory;
-    createdBy: CourseCreator;
+    author: CourseCreator;
     chapters: ChapterInterface[];
     createdAt: Date;
-    updateAt: Date;
+    updatedAt: Date;
 }

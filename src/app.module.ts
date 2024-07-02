@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CourseModule } from './course/course.module';
 import { ChapterModule } from './chapter/chapter.module';
 import { NestjsFormDataModule } from 'nestjs-form-data';
+import { EnrollmentModule } from './enrollment/enrollment.module';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { NestjsFormDataModule } from 'nestjs-form-data';
     }), 
     CourseModule, 
     ChapterModule,
-    NestjsFormDataModule
+    NestjsFormDataModule,
+    EnrollmentModule
   ],
 
   controllers: [],
