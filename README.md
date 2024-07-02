@@ -22,8 +22,14 @@ A full stack e-learning platform.
   - Update course
 
 - Chapters:
+
   - Create chapter
   - Get all chapters
   - Get chapter details
   - Update chapter details
   - Toggle chapter published status
+
+- Enrollments:
+  - Enroll to a course
+  - Retrieve all enrollments
+  - Retrieve enrollment details
